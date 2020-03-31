@@ -25,7 +25,21 @@ I used my own tool: [AsmSpy](https://github.com/mikehadlow/AsmSpy) to help with 
 
 ```asmspy.exe <path to application executable> -tr```
 
-At the end of the analysis process, we should have a list of NuGet packages to be checked for dotnet standard versions, our internal libraries that need to be converted to dotnet core, and our applications/services that need to be converted to dotnet core.
+At the end of the analysis process, we should have a list of NuGet packages to be checked for dotnet standard versions, our internal libraries that need to be converted to dotnet core, and our applications/services that need to be converted to dotnet core. We didn't have any problems with base class libraries or frameworks because our services are all console executables that communicate via EasyNetQ, so the BCL footprint was very light. Of course you will have a different experience if your application uses something like WCF.
+
+### Converting Projects to dotnet Standard and Core
+Some early experiments we tried with converting .NET Frameworks to dotnet Standard or Core in place, did not go well, so we soon settled on the practice of creating entirely new solutions and projects and simply copying the .cs files across. For this [Git Worktree](https://git-scm.com/docs/git-worktree) is your very good friend. Worktree allows you to create a new branch with a new working tree in a separate directory, so you can maintain both your source branch (master for example), and your conversion branch side by side. The project conversion process looks something like this:
+
+1. Create a new branch in a new worktree with the worktree command: `git worktree add -b core-conversion <path to new working directory>`
+2. In the new branch open the solution in Visual Studio and remove all the projects.
+3. Delete all the project files using explorer or the command line.
+4. Create new projects, copying the names of the old projects, but using the dotnet Standard project type for libraries, 'Class Library (.NET Standard)', and the dotnet Core project type for services and applications. In our case all the services were created as 'Console App (.NET Core)'. For unit tests we used 'xUnit Test Project (.NET Core)', or 'MSTest Test Project (.NET Core)', depending on the source project test framework.
+5. From our analysis (above), add the project references and NuGet packages required by each project.
+6. Copy the .cs files _only_ from the old projects to the new projects. An interesting little issue we found was that old .cs files were still in the repository despite being removed from their projects. .NET Framework projects enumerate each file by name (the source of many a problematic merge conflict) but Core and Standard projects simply use a wildcard to include every .cs file in the project directory, so a compile would include these previously deleted files and cause build problems. Easily fixed by deleting the rougue files.
+7. Once all this is done the solution should build and the tests should all pass.
+8. NuGet package information is now maintained in the project file itself, so for your libraries you will need to copy that from your old `.nuspec` files.
+
+You have now successfully converted your projects from .NET Framework to dotnet core and standard. Read on if you want to take advantages of the new dotnet Core frameworks available, and for ideas about build and deployment pipelines.
 
 ### Taking advantage of new dotnet core frameworks
 At this point we need to make a strategic decision about how far we want to take advantage of the new hosting, dependency-injection, configration, and logging frameworks that now come out-of-the-box with dotnet core. We may decide that we will simply use standard versions of all our existing frameworks. In our case we had: TopShelf for windows service hosting, Ninject for DI, System.Configuration for configuration, and log4net and NLog for logging. We decided to replace all these with their Generic Host equivalents from the `Microsoft.Extensions.*` namespaces.
