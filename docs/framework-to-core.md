@@ -28,7 +28,7 @@ I used my own tool: [AsmSpy](https://github.com/mikehadlow/AsmSpy) to help with 
 At the end of the analysis process, we should have a list of NuGet packages to be checked for dotnet standard versions, our internal libraries that need to be converted to dotnet core, and our applications/services that need to be converted to dotnet core. We didn't have any problems with base class libraries or frameworks because our services are all console executables that communicate via EasyNetQ, so the BCL footprint was very light. Of course you will have a different experience if your application uses something like WCF.
 
 ### Converting Projects to dotnet Standard and Core
-Some early experiments we tried with converting .NET Frameworks to dotnet Standard or Core in place, did not go well, so we soon settled on the practice of creating entirely new solutions and projects and simply copying the .cs files across. For this [Git Worktree](https://git-scm.com/docs/git-worktree) is your very good friend. Worktree allows you to create a new branch with a new working tree in a separate directory, so you can maintain both your source branch (master for example), and your conversion branch side by side. The project conversion process looks something like this:
+Some early experiments we tried with converting .NET Frameworks to dotnet Standard or Core in place, did not go well, so we soon settled on the practice of creating entirely new solutions and projects and simply copying the .cs files across. For this [Git Worktree](https://git-scm.com/docs/git-worktree) is your very good friend. Worktree allows you to create a new branch with a new working tree in a separate directory, so you can maintain both your main branch (master for example), and your conversion branch side by side. The project conversion process looks something like this:
 
 1. Create a new branch in a new worktree with the worktree command: `git worktree add -b core-conversion <path to new working directory>`
 2. In the new branch open the solution in Visual Studio and remove all the projects.
@@ -38,11 +38,30 @@ Some early experiments we tried with converting .NET Frameworks to dotnet Standa
 6. Copy the .cs files _only_ from the old projects to the new projects. An interesting little issue we found was that old .cs files were still in the repository despite being removed from their projects. .NET Framework projects enumerate each file by name (the source of many a problematic merge conflict) but Core and Standard projects simply use a wildcard to include every .cs file in the project directory, so a compile would include these previously deleted files and cause build problems. Easily fixed by deleting the rougue files.
 7. Once all this is done the solution should build and the tests should all pass.
 8. NuGet package information is now maintained in the project file itself, so for your libraries you will need to copy that from your old `.nuspec` files.
+9. One you are happy that the application is working as expected, merge your changes back into your main branch.
 
 You have now successfully converted your projects from .NET Framework to dotnet core and standard. Read on if you want to take advantages of the new dotnet Core frameworks available, and for ideas about build and deployment pipelines.
 
 ### Taking advantage of new dotnet core frameworks
-At this point we need to make a strategic decision about how far we want to take advantage of the new hosting, dependency-injection, configration, and logging frameworks that now come out-of-the-box with dotnet core. We may decide that we will simply use standard versions of all our existing frameworks. In our case we had: TopShelf for windows service hosting, Ninject for DI, System.Configuration for configuration, and log4net and NLog for logging. We decided to replace all these with their Generic Host equivalents from the `Microsoft.Extensions.*` namespaces.
+At this point we need to make a strategic decision about how far we want to take advantage of the new hosting, dependency-injection, configration, and logging frameworks that now come out-of-the-box with dotnet core. We may decide that we will simply use standard versions of all our existing frameworks. In our case we had: TopShelf for windows service hosting, Ninject for DI, System.Configuration for configuration, and log4net and NLog for logging, but we decided to replace all these with their Generic Host equivalents from the `Microsoft.Extensions.*` namespaces.
+
+Framework NuGet Package | `Microsoft.Extensions.*` equivalent
+--- | ---
+[TopShelf](http://topshelf-project.com/) | [Microsoft.Extensions.Hosting.WindowsServices](https://www.nuget.org/packages/Microsoft.Extensions.Hosting.WindowsServices)
+[Ninject](http://www.ninject.org/) | [Microsoft.Extensions.DependencyInjection](https://www.nuget.org/packages/Microsoft.Extensions.DependencyInjection/)
+System.Configuration | [Microsoft.Extensions.Configuration](https://www.nuget.org/packages/Microsoft.Extensions.Configuration/)
+[log4net](https://logging.apache.org/log4net/) | [Microsoft.Extensions.Logging](https://www.nuget.org/packages/Microsoft.Extensions.Logging/)
+
+The APIs of the existing 3rd party frameworks differ from the equivalent `Microsoft.Extensions.*` frameworks, so some refactoring is required to replace these. In the case of TopShelf and Ninject, the scope of this refactoring is limited; largely to the Program.cs file and the main service class for TopShelf, and to the NinjectModules where service registration occurs for Ninject. This makes it relatively painless to do the substitution. With Ninject, the main issue is the limited feature set of `Microsoft.Extensions.DependencyInjection`. If you make widespread use of advanced container features, you'll find yourself writing a lot of new code to make the same patterns work. Most of our registrations were pretty straightforward to convert.
+
+Replacing `log4net` with `Microsoft.Extensions.Logging` is a big more of a challenge since references to `log4net`, especially the `ILog` class and its methods, were spread liberally throughout our codebase. Here we found that the best refactoring method was to let the type system do the heavy lifting, using the following steps:
+
+1. Uninstall the `log4net` NuGet package. The build will fail with many missing class and method exceptions.
+2. Create a new interface named `ILog` with namespace `log4net`, now the build will fail with just missing method exceptions.
+3. Add methods to your `Ilog` interface to match the missing `log4net` methods  (for example `void Info(object message);`) until you get a clean build.
+4. Now use Visual Studio's rename symbol refactoring to change your `ILog` interface to match the `Microsoft.Extensions.Logging` `ILogger` interface and its methods to match `ILogger`'s methods. For example rename `void Info(object message);` to `void LogInformation(string message);`.
+5. Rename the namespace from `log4net` to `Microsoft.Extensions.Logging`. This is a two step process because you can't use rename symbol to turn one symbol into three, so rename `log4net` to some unique string, then use find and replace to change it to `Microsoft.Extensions.Logging`.
+6. Finally delete your interface .cs file, and assuming you've already added the `Microsoft.Extensions.Hosting` NuGet package and its dependencies (which include logging), everything should build and work as expected. 
 
 ### Libraries
 
