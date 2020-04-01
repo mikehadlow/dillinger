@@ -2,7 +2,7 @@
 An experience report of converting a large microservice platform from .NET Framework to dotnet core.
 
 ## Background
-For the last year or so I've been working with company that maintains a significant trading platform built in .NET. The architecture consists of a number of Windows Service components that communicate using [RabbitMQ](https://www.rabbitmq.com/) with my own [EasyNetQ](https://easynetq.com/) library (which is was why I was hired). These are all backend components that at the top level communicate with various clients via a web API maintained by a different team. The infrastructure is hosted in the company's own data center with a [CI/CD](https://en.wikipedia.org/wiki/Continuous_delivery) software process featuring [BitBucket](https://www.atlassian.com/software/bitbucket), [Team City](https://www.jetbrains.com/teamcity/), and [Octopus](https://octopus.com/), a pretty standard .NET delivery pipeline.
+For the last year or so I've been working with company that maintains a significant trading platform built in .NET. The architecture consists of a number of Windows Service components that communicate using [RabbitMQ](https://www.rabbitmq.com/) with [EasyNetQ](https://easynetq.com/). These are all backend components that at the top level communicate with various clients via a web API maintained by a different team. The infrastructure is hosted in the company's own data center with a [CI/CD](https://en.wikipedia.org/wiki/Continuous_delivery) software process featuring [BitBucket](https://www.atlassian.com/software/bitbucket), [Team City](https://www.jetbrains.com/teamcity/), and [Octopus](https://octopus.com/), a pretty standard .NET delivery pipeline.
 
 ### Motivation
 Our motivation for porting to dotnet core was essentially twofold: to keep the technology platform up to date, and to be in a position to exploit new developments in application platforms, specifically to take advantage of container technology, such as [Docker](https://www.docker.com/), and container orchestrators, such as [Kubernetes](https://kubernetes.io/).
@@ -28,7 +28,7 @@ I used my own tool: [AsmSpy](https://github.com/mikehadlow/AsmSpy) to help with 
 At the end of the analysis process, we should have a list of NuGet packages to be checked for dotnet standard versions, our internal libraries that need to be converted to dotnet core, and our applications/services that need to be converted to dotnet core. We didn't have any problems with base class libraries or frameworks because our services are all console executables that communicate via EasyNetQ, so the BCL footprint was very light. Of course you will have a different experience if your application uses something like WCF.
 
 ### Converting Projects to dotnet Standard and Core
-Some early experiments we tried with converting .NET Frameworks to dotnet Standard or Core in place, did not go well, so we soon settled on the practice of creating entirely new solutions and projects and simply copying the .cs files across. For this [Git Worktree](https://git-scm.com/docs/git-worktree) is your very good friend. Worktree allows you to create a new branch with a new working tree in a separate directory, so you can maintain both your main branch (master for example), and your conversion branch side by side. The project conversion process looks something like this:
+Some early experiments we tried with converting .NET Frameworks to dotnet Standard or Core in place, by modifying the `.csproj` files, did not go well, so we soon settled on the practice of creating entirely new solutions and projects and simply copying the .cs files across. For this [Git Worktree](https://git-scm.com/docs/git-worktree) is your very good friend. Worktree allows you to create a new branch with a new working tree in a separate directory, so you can maintain both your main branch (master for example), and your conversion branch side by side. The project conversion process looks something like this:
 
 1. Create a new branch in a new worktree with the worktree command: `git worktree add -b core-conversion <path to new working directory>`
 2. In the new branch open the solution in Visual Studio and remove all the projects.
@@ -61,11 +61,55 @@ Replacing `log4net` with `Microsoft.Extensions.Logging` is a big more of a chall
 3. Add methods to your `Ilog` interface to match the missing `log4net` methods  (for example `void Info(object message);`) until you get a clean build.
 4. Now use Visual Studio's rename symbol refactoring to change your `ILog` interface to match the `Microsoft.Extensions.Logging` `ILogger` interface and its methods to match `ILogger`'s methods. For example rename `void Info(object message);` to `void LogInformation(string message);`.
 5. Rename the namespace from `log4net` to `Microsoft.Extensions.Logging`. This is a two step process because you can't use rename symbol to turn one symbol into three, so rename `log4net` to some unique string, then use find and replace to change it to `Microsoft.Extensions.Logging`.
-6. Finally delete your interface .cs file, and assuming you've already added the `Microsoft.Extensions.Hosting` NuGet package and its dependencies (which include logging), everything should build and work as expected. 
+6. Finally delete your interface .cs file, and assuming you've already added the `Microsoft.Extensions.Hosting` NuGet package and its dependencies (which include logging), everything should build and work as expected.
 
-### Libraries
+Configuration is another challenge. Gone are our old friends `App.config` and `System.Configuration.ConfigurationManager` to be replaced with a new configuration framework, `Microsoft.Extensions.Configuration`. This is far more flexible and can load configuration from various sources, including JSON files, environment variables, and command line arguments. We replaced our `App.config` files with `appsettings.json`, and refactored our attributed configuration classes into POCOs and used the `IConfigurationSection.Bind<T>(..)` method to load the config. An easier and more streamlined process than the clunky early 2000's era `System.Configuration`. At a later date we will probably move to loading environment specific configuration from environment variables to better align with the Docker/k8s way of doing things.
 
-### Services
+### Changes to our build and deployment pipeline
+As I mentioned above, we use a very common combination of [BitBucket](https://www.atlassian.com/software/bitbucket), [Team City](https://www.jetbrains.com/teamcity/), and [Octopus](https://octopus.com/) to host our build and deployment pipeline. We follow a continuous delivery style deployment process. Any commit to a BitBucket Git repository immediately triggers a build, test and package process in Team City, which in turn triggers Octopus to deploy the package to our development environment. We then have to manually use the Octopus UI to release to first our QA environment and then to Production. Although our ultimate aim, and a prime motivation for the transition to Core, is to move to Docker and Kubernetes, we needed to be able to build and deploy using our existing tooling for the time being. This proved to be pretty straightforward. The changes were in three main areas:
+
+1. __Using the `dotnet` tool__: The build and test process changed from using NuGet, MSBuild and xUnit, to having every step, except the Octopus trigger, run with the `dotnet` tool. This simplifies the process. One very conventient change is how easy it is to version the build with the command line switch ` /p:Version=%build.number%`. We also took advantage of the self-contained feature to free us from having to ensure that each deployment target had the correct version of Core installed. This is a great advantage.
+2. __JSON configuration variables__: We previously used the [Octopus variable substitution feature](https://octopus.com/docs/projects/variables/variable-substitutions) to inject environment specific values into our `App.config` files. This involved annotating the config file with Octopus substitution variables, a rather fiddly and error prone process. But now with the new `appsettings.json` file we can use the conventient [JSON configuration variable feature](https://octopus.com/docs/deployment-process/configuration-features/json-configuration-variables-feature) to do the replacement, with no need for any Octopus specific annotation in our config file.
+3. __Windows service installation and startup__: Previously, with TopShelf, installing our windows services on target machines was a simple case of calling `ourservice.exe install` and `ourservice.exe start` to start it. Although the `Microsoft.Extensions.Hosting` framework provides hooks into the Windows service start and stop events, it doesn't provide any facilities to install or start the service itself, so we had to write somewhat complex powershell scripts to invoke `SC.exe` to do the installation and the powershell `Start-Service` command to start. This is definitely a step backward.
 
 ## Observations
+The conversion of our entire suite of services from .NET Framework to Core turned out to be a bigger job than we at first expected. This was mainly because we took the opportuntiy to update our libraries and services to replace our 3rd party NuGet packages with the new `Microsoft.Extensions.*` frameworks. This was a significant refactoring effort. Doing a thorough analysis of your project and its dependencies before embarking on the conversion is essential. With large scale distrubuted applications such as ours, it's often surprising how deep the organisations internal dependency graph goes, especially if, like me, you are converting large codebases which you didn't have any input into writing. With the actual project conversion I would highly recommend starting with new projects rather than trying to convert them in place. This turned out to be a far more reliable method. 
+
+DotNet Core is a complete ground up reinvention of the .NET tooling and frameworks, and the 20 year difference shows in many places. The tooling is modern, as are the frameworks, and although there's plenty to argue about with the individual decisions the team have made, on the whole it's a large step forward. This was apparent in many ways during the conversion process, with many things be simpler and easier than with the old .NET Framework. Having the entire SDK surficed through a single command line tool (the `dotnet` command), making automated build processes so much easier, is probably the most promiinent example. I for one am very pleased we were able to take the effort to make the change.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
