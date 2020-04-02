@@ -13,11 +13,6 @@ Software infrastructure has experienced a revolution in the last few years. I've
 
 ## Process
 
-* What are the biggest challenges for you to port to .NET Core from .NET Framework?
-* Did you use any tools such as Portability Analyzer in the porting process?
-* Any feedback on these tools—were they useful and to what extent?
-* If you were to have an ideal tool to help with you with this process, what are some of the features it might have?
-
 ### Analysis
 A dotnet core application can only consume dotnet core or dotnet standard dependencies, so the first task is to understand the dependency tree; what are the projects, NuGet packages, and system assemblies that the application relies upon, and which assemblies do these rely on in turn. Once we have that picture, we can work from the leafs down to the trunk; from the top-level dependencies down to the application itself. For third party NuGet packages we have to make sure that a dotnet standard version is available. For libraries internal to the organisation, we have to add each one to our list of projects that we will need to convert to dotnet standard.
 
