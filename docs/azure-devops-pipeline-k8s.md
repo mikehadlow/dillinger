@@ -13,3 +13,10 @@ Pipelines:
 * [Use Azure Pipelines](https://docs.microsoft.com/en-gb/azure/devops/pipelines/get-started/pipelines-get-started?view=azure-devops). This describes how one defines the pipeline in a `azure-pipelines.yml` file that is versioned alongside the application Git repo. So, as in TeamCity we will have a pipeline per repo with a `Dockerfile` and an `azure-pipelines.yml` file. __Question:__ How does this align with the k8s YAML configuration which will neccesarily apply to the entire environment?
 * Good video introduction to Pipelines on YouTube: [Azure Pipelines](https://www.youtube.com/watch?v=IUak2y4s950)
 * [YAML schema reference](https://docs.microsoft.com/en-us/azure/devops/pipelines/yaml-schema?view=azure-devops&tabs=schema%2Cparameter-schema). Reference for the pipeline YAML syntax.
+
+Kubernetes:
+* Start page for [K8s documentation](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/).
+* K8s is part of the CNCF (Cloud Native Computing Foundation). Blog is [here](https://www.cncf.io/newsroom/blog/)
+* Logging. Default K8s tools is [Fluentd](https://www.cncf.io/blog/2020/02/26/cncf-tools-overview-fluentd-unified-logging-layer/).
+* [Prometheus and Grafana](https://prometheus.io/) are tools for metrics and alterting.
+
