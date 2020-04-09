@@ -19,4 +19,6 @@ Kubernetes:
 * K8s is part of the CNCF (Cloud Native Computing Foundation). Blog is [here](https://www.cncf.io/newsroom/blog/)
 * Logging. Default K8s tools is [Fluentd](https://www.cncf.io/blog/2020/02/26/cncf-tools-overview-fluentd-unified-logging-layer/).
 * [Prometheus and Grafana](https://prometheus.io/) are tools for metrics and alterting.
+* [Azure pipeline deploy to Kubernetes](https://docs.microsoft.com/en-us/azure/devops/pipelines/ecosystems/kubernetes/deploy?view=azure-devops)
+* [Kubernetes Manifest Task](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/deploy/kubernetes-manifest?view=azure-devops). Also looked at Helm, but looks like we don't need it just yet, the manifest task can do replacement of docker image tags, which is the main thing we need. Current thought is that we should keep the k8s deployment.yml in the application's Git repo. A separate 'Trading.k8s.Services' repo should be used to source control the service definitions.
 
