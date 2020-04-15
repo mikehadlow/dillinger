@@ -21,6 +21,7 @@ Kubernetes:
 * [Prometheus and Grafana](https://prometheus.io/) are tools for metrics and alterting.
 * [Azure pipeline deploy to Kubernetes](https://docs.microsoft.com/en-us/azure/devops/pipelines/ecosystems/kubernetes/deploy?view=azure-devops)
 * [Kubernetes Manifest Task](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/deploy/kubernetes-manifest?view=azure-devops). Also looked at Helm, but looks like we don't need it just yet, the manifest task can do replacement of docker image tags, which is the main thing we need. Current thought is that we should keep the k8s deployment.yml in the application's Git repo. A separate 'Trading.k8s.Services' repo should be used to source control the service definitions.
+* How to allow AKS to access a private container repository (for example ACR): [Pull image from private repository](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
 
 Lesson learnt, experience stories:
 * [Kubernetes Failure Stories](https://github.com/hjacobs/kubernetes-failure-stories)
