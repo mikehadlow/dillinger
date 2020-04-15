@@ -4,7 +4,7 @@ Tools:
 * [Azure Pipelines extensions for VSCode](https://azure.microsoft.com/es-es/blog/new-azure-pipelines-announcements-vs-code-extension-github-releases-and-more/)
 
 Organizations, Projects etc:
-* [Plan your organizational structure](https://docs.microsoft.com/en-us/azure/devops/user-guide/plan-your-azure-devops-org-structure?view=azure-devops). Suggests that we should have a single 10star __organisation__, with __projects__ aligned with teams. So for our (Jesper, Kent, Mike) team we should have a 'Backend Group' project. Within that project we can maintain many Git repos and pipelines.
+* [Plan your organizational structure](https://docs.microsoft.com/en-us/azure/devops/user-guide/plan-your-azure-devops-org-structure?view=azure-devops). Suggests that we should have a single company-wide __organisation__, with __projects__ aligned with teams. So for our team we should have a 'Backend Group' project. Within that project we can maintain many Git repos and pipelines.
 
 Pipelines:
 * Start page for [Azure Pipelines Documentation](https://docs.microsoft.com/en-gb/azure/devops/pipelines/?view=azure-devops).
