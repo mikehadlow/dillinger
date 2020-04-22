@@ -14,7 +14,7 @@ Pipelines:
 * Good video introduction to Pipelines on YouTube: [Azure Pipelines](https://www.youtube.com/watch?v=IUak2y4s950)
 * [YAML schema reference](https://docs.microsoft.com/en-us/azure/devops/pipelines/yaml-schema?view=azure-devops&tabs=schema%2Cparameter-schema). Reference for the pipeline YAML syntax.
 
-Kubernetes:
+Azure Kubernetes Service (AKS):
 * Start page for [K8s documentation](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/).
 * K8s is part of the CNCF (Cloud Native Computing Foundation). Blog is [here](https://www.cncf.io/newsroom/blog/)
 * Logging. Default K8s tools is [Fluentd](https://www.cncf.io/blog/2020/02/26/cncf-tools-overview-fluentd-unified-logging-layer/).
