@@ -17,7 +17,6 @@ Pipelines:
 Azure Kubernetes Service (AKS):
 * Start page for [K8s documentation](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/).
 * K8s is part of the CNCF (Cloud Native Computing Foundation). Blog is [here](https://www.cncf.io/newsroom/blog/)
-* Logging. Default K8s tools is [Fluentd](https://www.cncf.io/blog/2020/02/26/cncf-tools-overview-fluentd-unified-logging-layer/). After more research, we decided to go with [Fluent Bit](https://fluentbit.io/). This is deployed as a DaemonSet onto the k8s cluster and can be configured to effectively ship log writes from stdout to multiple backends. Ships with a backend for Splunk. Some issues with log formatting, which means that we will have to update how our services format their log messages.
 * [Prometheus and Grafana](https://prometheus.io/) are tools for metrics and alterting.
 * [Azure pipeline deploy to Kubernetes](https://docs.microsoft.com/en-us/azure/devops/pipelines/ecosystems/kubernetes/deploy?view=azure-devops)
 * [Kubernetes Manifest Task](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/deploy/kubernetes-manifest?view=azure-devops). Decided to use Helm for deployments, so not using this.
