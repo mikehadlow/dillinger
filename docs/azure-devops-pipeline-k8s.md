@@ -27,6 +27,7 @@ Azure Kubernetes Service (AKS):
 Kubernetes Logging:
 * Using [Fluent Bit](https://fluentbit.io/), which has a [Splunk output plugin](https://docs.fluentbit.io/manual/pipeline/outputs/splunk). Very good video on logging in k8s, and an introduction to Fluent Bit [here](https://www.youtube.com/watch?v=7qL5wkAaSh4).
 * Created a [DaemonSet](https://docs.fluentbit.io/manual/installation/kubernetes).
+* Create a [Spunk HEC token](https://docs.splunk.com/Documentation/Splunk/8.0.3/Data/UsetheHTTPEventCollector#Configure_HTTP_Event_Collector_on_Splunk_Enterprise)
 * Restart to pick up config changes: `kubectl rollout restart daemonset/fluent-bit -n logging`
 
 Lesson learnt, experience stories:
