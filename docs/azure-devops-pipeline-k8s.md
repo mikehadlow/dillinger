@@ -30,7 +30,16 @@ Kubernetes Logging:
 * Create a [Spunk HEC token](https://docs.splunk.com/Documentation/Splunk/8.0.3/Data/UsetheHTTPEventCollector#Configure_HTTP_Event_Collector_on_Splunk_Enterprise)
 * Restart to pick up config changes: `kubectl rollout restart daemonset/fluent-bit -n logging`
 
+Kubernetes Monitoring:
+* Default is [Prometheus](https://prometheus.io/)/[Grafana](https://grafana.com/).
+* The [Open Metrics](https://medium.com/@leodido/openmetrics-20d40eb0b302) format used by Prometheus.
+* [Prometheus Operator](https://github.com/coreos/prometheus-operator) creates/configures/manages Prometheus clusters atop Kubernetes.
+* [Kube Prometheus](https://github.com/coreos/kube-prometheus) Use Prometheus to monitor Kubernetes and applications running on Kubernetes.
+* [Prometheus.NET](https://github.com/prometheus-net/prometheus-net) The Prometheus client library for .NET.
+* YouTube video [Monitoring Kubernetes with Prometheus](https://www.youtube.com/watch?v=kG9p417sC3I), a talk by maintainer Tom Wilkie.
+
 Lesson learnt, experience stories:
 * [Kubernetes Failure Stories](https://github.com/hjacobs/kubernetes-failure-stories)
+* [The Myth of Cloud-Native Portability](https://thenewstack.io/myth-cloud-native-portability/)
 
 
