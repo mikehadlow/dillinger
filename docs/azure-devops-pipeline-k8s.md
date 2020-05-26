@@ -37,6 +37,7 @@ Kubernetes Monitoring:
 * [Kube Prometheus](https://github.com/coreos/kube-prometheus) Use Prometheus to monitor Kubernetes and applications running on Kubernetes.
 * [Prometheus.NET](https://github.com/prometheus-net/prometheus-net) The Prometheus client library for .NET.
 * YouTube video [Monitoring Kubernetes with Prometheus](https://www.youtube.com/watch?v=kG9p417sC3I), a talk by maintainer Tom Wilkie.
+* YouTube video [PromQL for mere mortals](https://www.youtube.com/watch?v=hTjHuoWxsks), Ian Billett giving a very good beginner intro to PromQL.
 
 Lesson learnt, experience stories:
 * [Kubernetes Failure Stories](https://github.com/hjacobs/kubernetes-failure-stories)
