@@ -23,6 +23,7 @@ Azure Kubernetes Service (AKS):
 * [Helm](https://helm.sh/) is the 'package manager for Kubernetes', which can be used to package deployments and their configuration. Helm Charts are also stored in a container registry using the [OCI](https://helm.sh/docs/topics/registries/) standard. In our case we use the same ACR that we use for container images. Charts are versioned with the same build number as the application's docker images.
 * [How to push Helm Charts to the ACR](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-helm-repos)
 * How to allow AKS to access a private container repository (for example ACR): [Pull image from private repository](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+* [Kubernetes Operators](https://coreos.com/blog/introducing-operators.html) provide [custom resource definitions](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/) and controllers to extend the K8s tooling (kubectl etc), to provide application specific operations. See the [Prometheus Operator](https://github.com/coreos/prometheus-operator) for an example.
 
 Kubernetes Logging:
 * Using [Fluent Bit](https://fluentbit.io/), which has a [Splunk output plugin](https://docs.fluentbit.io/manual/pipeline/outputs/splunk). Very good video on logging in k8s, and an introduction to Fluent Bit [here](https://www.youtube.com/watch?v=7qL5wkAaSh4).
