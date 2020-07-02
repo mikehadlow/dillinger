@@ -40,6 +40,11 @@ Kubernetes Monitoring:
 * YouTube video [Monitoring Kubernetes with Prometheus](https://www.youtube.com/watch?v=kG9p417sC3I), a talk by maintainer Tom Wilkie.
 * YouTube video [PromQL for mere mortals](https://www.youtube.com/watch?v=hTjHuoWxsks), Ian Billett giving a very good beginner intro to PromQL.
 
+Kubernetes Tips and Tricks:
+* To Proxy to a service or pod: , then follow this URL:
+    * first `kubectl proxy --port=8001`
+    * In browser: `http://localhost:8001/api/v1/namespaces/<your-namespace>/pods/<pod-name>/proxy/`
+
 Lesson learnt, experience stories:
 * [Kubernetes Failure Stories](https://github.com/hjacobs/kubernetes-failure-stories)
 * [The Myth of Cloud-Native Portability](https://thenewstack.io/myth-cloud-native-portability/)
