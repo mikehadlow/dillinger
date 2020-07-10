@@ -39,6 +39,7 @@ Kubernetes Monitoring:
 * [Prometheus.NET](https://github.com/prometheus-net/prometheus-net) The Prometheus client library for .NET.
 * YouTube video [Monitoring Kubernetes with Prometheus](https://www.youtube.com/watch?v=kG9p417sC3I), a talk by maintainer Tom Wilkie.
 * YouTube video [PromQL for mere mortals](https://www.youtube.com/watch?v=hTjHuoWxsks), Ian Billett giving a very good beginner intro to PromQL.
+* [Curated list of Prometheus resources](https://github.com/roaldnefs/awesome-prometheus)
 
 Kubernetes Tips and Tricks:
 * To Proxy to a service or pod: , then follow this URL:
